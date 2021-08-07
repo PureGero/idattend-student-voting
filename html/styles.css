@@ -28,7 +28,7 @@ body {
   border: 1px solid white;
   border-bottom: 1px solid gray;
   display: block;
-  font-size: 24px;
+  font-size: 22px;
   margin: 30px;
   outline: none;
   padding: 5px;
@@ -47,7 +47,7 @@ button {
   border-radius: 10px;
   box-sizing: content-box;
   color: white;
-  font-size: 120px;
+  font-size: 18px;
   margin: 30px;
   outline-color: green;
   padding: 15px;

@@ -3,8 +3,11 @@ module.exports = {
   // Students for the voting page
   // Can be Student ID, MISID, or Name (First and/or Last)
   students: [
-    'Jess Smith',
-    'Robert Brown',
+    'Chaseling',
+    'George',
+    'Anastasi',
+    'Richards',
+    'Mortimer',
   ],
 
   // Server settings
