@@ -9,9 +9,7 @@ module.exports = {
   // Server settings
   database: `IDAttend${new Date().getFullYear()}`, // IDAttend2021
   server: 'GEORGE\\SQLEXPRESS',
-
-  // Student login settings
-  domain: 'GBN',
+  domain: 'GEORGE',
 
   // Table settings (You shouldn't need to change these)
   table: 'dbo.tblStudents',

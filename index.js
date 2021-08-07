@@ -24,6 +24,7 @@ prompt.get(properties, async (err, prompts) => {
     password: prompts.password,
     database: config.database,
     server: config.server,
+    domain: config.domain,
     options: {
       encrypt: true, // for azure
       trustServerCertificate: true // change to true for local dev / self-signed certs
