@@ -1,61 +1,36 @@
+const cluster = require('cluster');
 const config = require('./config.js');
-const optimist = require('optimist');
-const prompt = require('prompt');
-const sql = require('mssql');
+const os = require('os');
 
-prompt.override = optimist.argv;
+const PORT = 80;
+const NODES = os.cpus().length;
 
-const properties = [
-  {
-    name: 'username'
-  },
-  {
-    name: 'password',
-    hidden: true
-  }
-];
+if (cluster.isMaster) {
+  (async () => {
+    try {
+      const students = await require('./students.js')();
+      process.env.students = JSON.stringify(students);
 
-prompt.start();
+      if (NODES == 1) {
+        console.log('Starting web server in single process mode');
+        require('./server.js')();
+      } else {
+        console.log(`Starting ${NODES} workers`);
+        [...new Array(NODES)].forEach(() => cluster.fork());
 
-prompt.get(properties, async (err, prompts) => {
-  if (err) throw err;
-  const sqlConfig = {
-    user: prompts.username,
-    password: prompts.password,
-    database: config.database,
-    server: config.server,
-    domain: config.domain,
-    options: {
-      encrypt: true, // for azure
-      trustServerCertificate: true // change to true for local dev / self-signed certs
+        cluster.on('exit', (worker, code, signal) => {
+          console.log(`worker ${worker.process.pid} died, restarting it`);
+          cluster.fork();
+        });
+      }
+
+      console.log(`Students can access the webpage at http://${os.hostname}${PORT == 80 ? '' : `:${PORT}`}/`);
+    } catch (e) {
+      console.error();
+      console.error(`Error: ${e}`);
+      process.exit(1);
     }
-  }
-
-  console.log(`Connecting to database ${sqlConfig.database} on ${sqlConfig.server} with username ${sqlConfig.user}\n`);
-  const pool  = await sql.connect(sqlConfig);
-
-  const students = await Promise.all(config.students.map(async student => {
-    const result = await pool.request()
-      .input('param', sql.VarChar(200), student)
-      .query(config.studentQuery(config.table));
-    if (result.recordset.length == 0) {
-      console.log(`No student matching ${student}`);
-      return;
-    }
-    if (result.recordset.length > 1) {
-      console.log(`Multiple students matching ${student}:`);
-      result.recordset.forEach(record => console.log(`  ${record.ID} ${record.PreferredName} ${record.PreferredLastName} (${record.MISID})`));
-      return;
-    }
-    return result.recordset[0];
-  }));
-
-  if (students.includes()) {
-    console.log();
-    console.log('Error: Could not find all students.');
-    console.log('Please fix these students in config.js then try again.');
-    return process.exit(1);
-  }
-
-  console.log('Ready');
-});
+  })();
+} else {
+  require('./server.js')();
+}
