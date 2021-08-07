@@ -30,8 +30,32 @@ prompt.get(properties, async (err, prompts) => {
       trustServerCertificate: true // change to true for local dev / self-signed certs
     }
   }
-  console.log(`Connecting to database ${sqlConfig.database} on ${sqlConfig.server} with username ${sqlConfig.user}`);
-  await sql.connect(sqlConfig);
-  const result = await sql.query(`select top 5 * from ${config.table}`);
-  console.dir(result);
+
+  console.log(`Connecting to database ${sqlConfig.database} on ${sqlConfig.server} with username ${sqlConfig.user}\n`);
+  const pool  = await sql.connect(sqlConfig);
+
+  const students = await Promise.all(config.students.map(async student => {
+    const result = await pool.request()
+      .input('param', sql.VarChar(200), student)
+      .query(config.studentQuery(config.table));
+    if (result.recordset.length == 0) {
+      console.log(`No student matching ${student}`);
+      return;
+    }
+    if (result.recordset.length > 1) {
+      console.log(`Multiple students matching ${student}:`);
+      result.recordset.forEach(record => console.log(`  ${record.ID} ${record.PreferredName} ${record.PreferredLastName} (${record.MISID})`));
+      return;
+    }
+    return result.recordset[0];
+  }));
+
+  if (students.includes()) {
+    console.log();
+    console.log('Error: Could not find all students.');
+    console.log('Please fix these students in config.js then try again.');
+    return process.exit(1);
+  }
+
+  console.log('Ready');
 });
