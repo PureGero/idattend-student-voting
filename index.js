@@ -13,7 +13,7 @@ if (cluster.isMaster) {
 
       if (NODES == 1) {
         console.log('Starting web server in single process mode');
-        require('./server.js')();
+        require('./server.js')(PORT);
       } else {
         console.log(`Starting ${NODES} workers`);
         [...new Array(NODES)].forEach(() => cluster.fork());
@@ -32,5 +32,5 @@ if (cluster.isMaster) {
     }
   })();
 } else {
-  require('./server.js')();
+  require('./server.js')(PORT);
 }
