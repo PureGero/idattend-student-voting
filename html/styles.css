@@ -11,10 +11,11 @@ body {
 }
 
 .login {
+  background: white;
   border: 1px solid #3C9F40;
   border-radius: 10px;
-  padding: 20px;
-  padding-top: 10px;
+  box-shadow: 10px 8px 25px -8px black;
+  padding: 10px 10px 20px;
 }
 
 .login h1 {
@@ -46,7 +47,7 @@ button {
   border-radius: 10px;
   box-sizing: content-box;
   color: white;
-  font-size: 18px;
+  font-size: 120px;
   margin: 30px;
   outline-color: green;
   padding: 15px;
