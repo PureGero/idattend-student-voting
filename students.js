@@ -3,7 +3,10 @@
  */
 
 const config = require('./config.js');
+const fetch = require('node-fetch');
+const fs = require('fs');
 const optimist = require('optimist');
+const path = require('path');
 const prompt = require('prompt');
 const sql = require('mssql');
 
@@ -20,6 +23,30 @@ const properties = [
 ];
 
 prompt.start();
+
+async function mapStudents(students) {
+  // Reduce students to only what's needed
+  students = students.map(student => ({
+    name: `${student.PreferredName || student.FirstName} ${student.PreferredLastName || student.LastName}`,
+    id: student.ID
+  }));
+
+  // Create student's images folder
+  if (!fs.existsSync(path.join(__dirname, 'images'))) {
+    fs.mkdirSync(path.join(__dirname, 'images'), { recursive: true });
+  }
+
+  // Download the student's images
+  for (let i = 0; i < students.length; i++) {
+    let student = students[i];
+    await fetch('https://thispersondoesnotexist.com/image').then(res => {
+      const dest = fs.createWriteStream(path.join(__dirname, `images/${student.id}.jpg`));
+      res.body.pipe(dest);
+    });
+  }
+
+  return students;
+}
 
 module.exports = () => new Promise((resolve, reject) => {
   prompt.get(properties, async (err, prompts) => {
@@ -59,9 +86,6 @@ module.exports = () => new Promise((resolve, reject) => {
       return reject('Could not find all students.\nPlease fix these students in config.js then try again.');
     }
 
-    resolve(students.map(student => ({
-      name: `${student.PreferredName || student.FirstName} ${student.PreferredLastName || student.LastName}`,
-      id: student.ID
-    })));
+    resolve(await mapStudents(students));
   });
 });
