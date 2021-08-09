@@ -1,16 +1,43 @@
-document.getElementById('error').innerHTML = '';
+document.querySelector('.error').innerHTML = '';
 
 const loginForm = document.querySelector('.login');
 
 loginForm.onsubmit = e => {
   e.preventDefault();
   
+  document.querySelector('.login button[type=submit]').innerHTML = 'Logging in...';
+  document.querySelector('.login .error').innerHTML = '';
+
+  const username = loginForm.username.value;
+  const password = loginForm.password.value;
+
+  fetch('login', {
+    method: 'POST', // or 'PUT'
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.candidates) {
+      showCandidates(data.candidates);
+    } else {
+      document.querySelector('.login button[type=submit]').innerHTML = 'Login';
+      document.querySelector('.login .error').innerHTML = data.error;
+    }
+  })
+
+  return false;
+};
+
+function showCandidates(candidates) {
   loginForm.remove();
 
   const voteForm = document.createElement('form');
   voteForm.className = 'candidates';
   voteForm.action = '#';
-  [...new Array(14)].forEach(() => voteForm.appendChild(createCandidate('Geoff Smith', '123456789A')));
+  candidates.forEach(candidate => voteForm.appendChild(createCandidate(candidate.name, candidate.id)));
   // TODO Submit button
   document.body.appendChild(voteForm);
 
@@ -18,16 +45,14 @@ loginForm.onsubmit = e => {
     input.onchange = voteValueChange;
     input.onkeydown = event => setTimeout(() => voteValueChange(event), 0);
   });
-
-  return false;
-};
+}
 
 function createCandidate(name, id) {
   const div = document.createElement('div');
 
   div.className = 'candidate';
   div.innerHTML = `
-    <img src="https://thispersondoesnotexist.com/image"/>
+    <img src="images/${id}.jpg"/>
     <label for="${name},${id}">${name}</label>
     <input type="number" id="${name},${id}" name="${name},${id}" placeholder="☐"/>
   `;
