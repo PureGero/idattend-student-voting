@@ -34,11 +34,26 @@ loginForm.onsubmit = e => {
 function showCandidates(candidates) {
   loginForm.remove();
 
+  const voteInfo = document.createElement('h1');
+  voteInfo.innerHTML = 'Vote 1 to 10, (1 is the best, 10 is the worst)';
+
+  const voteSubInfo = document.createElement('p');
+  voteSubInfo.innerHTML = 'You only give 10 people a vote';
+
+  const voteSubmitButton = document.createElement('button');
+  voteSubmitButton.type = 'submit';
+  voteSubmitButton.innerHTML = 'Submit';
+
   const voteForm = document.createElement('form');
   voteForm.className = 'candidates';
   voteForm.action = '#';
+
+  voteForm.appendChild(voteInfo);
+  voteForm.appendChild(voteSubInfo);
+  voteForm.appendChild(voteSubmitButton);
   candidates.forEach(candidate => voteForm.appendChild(createCandidate(candidate.name, candidate.id)));
-  // TODO Submit button
+  voteForm.appendChild(voteSubmitButton);
+
   document.body.appendChild(voteForm);
 
   document.querySelectorAll('.candidate input').forEach(input => {
