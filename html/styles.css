@@ -4,11 +4,16 @@ html {
 
 body {
   background-color: #3b794b;
+  color: white;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   min-height: 70vh;
+}
+
+.error {
+  color: red;
 }
 
 .login {
@@ -81,10 +86,16 @@ button:hover, button:focus {
   background: #529255;
 }
 
+.candidates button:disabled {
+  background: #529255;
+  cursor: not-allowed;
+}
+
 .candidate {
   background: white;
   border-radius: 10px;
   box-shadow: 10px 8px 25px -8px black;
+  color: black;
   font-size: 18px;
   margin: 20px;
   padding: 20px 20px 30px;
@@ -97,6 +108,12 @@ button:hover, button:focus {
 .candidate label {
   display: block;
   margin: 20px 0 15px;
+}
+
+.candidate .value_error {
+  color: red;
+  display: block;
+  font-size: 16px;
 }
 
 .candidate input {
@@ -124,4 +141,8 @@ button:hover, button:focus {
 /* Firefox */
 .candidate input[type=number] {
   -moz-appearance: textfield;
+}
+
+.candidates .error {
+  color: #ffaaaa;
 }

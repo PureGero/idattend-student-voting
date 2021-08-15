@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/PureGero/idattend-student-voting#readme",
   "dependencies": {
+    "cookie-encrypter": "^1.0.1",
     "express": "^4.17.1",
     "mssql": "^7.2.0",
     "node-fetch": "^2.6.1",

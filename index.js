@@ -1,5 +1,6 @@
 const cluster = require('cluster');
 const config = require('./config.js');
+const crypto = require('crypto');
 const os = require('os');
 
 const PORT = 80;
@@ -10,6 +11,10 @@ if (cluster.isMaster) {
     try {
       const students = await require('./students.js')();
       process.env.students = JSON.stringify(students);
+
+      if (!process.env.LOGIN_SECRET) {
+        process.env.LOGIN_SECRET = crypto.randomBytes(16).toString('hex');
+      }
 
       if (NODES == 1) {
         console.log('Starting web server in single process mode');

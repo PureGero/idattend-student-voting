@@ -31,19 +31,17 @@ async function mapStudents(students) {
     id: student.ID
   }));
 
-  // Create student's images folder
+  // Create students' images folder
   if (!fs.existsSync(path.join(__dirname, 'images'))) {
     fs.mkdirSync(path.join(__dirname, 'images'), { recursive: true });
   }
 
-  // Download the student's images
-  for (let i = 0; i < students.length; i++) {
-    let student = students[i];
-    await fetch('https://thispersondoesnotexist.com/image').then(res => {
-      const dest = fs.createWriteStream(path.join(__dirname, `images/${student.id}.jpg`));
-      res.body.pipe(dest);
-    });
-  }
+  // Download the students' images
+  console.log(`Downloading student photos from ${config.photoUrl('{STUDENT_ID}')}`);
+  await Promise.all(students.map(student => fetch(config.photoUrl(student.id)).then(res => {
+    const dest = fs.createWriteStream(path.join(__dirname, `images/${student.id}.jpg`));
+    res.body.pipe(dest);
+  }).catch(console.error)));
 
   return students;
 }
@@ -63,7 +61,7 @@ module.exports = () => new Promise((resolve, reject) => {
       }
     }
 
-    console.log(`Connecting to database ${sqlConfig.database} on ${sqlConfig.server} with username ${sqlConfig.user}\n`);
+    console.log(`Connecting to database ${sqlConfig.database} on ${sqlConfig.server} with username ${sqlConfig.user}`);
     const pool  = await sql.connect(sqlConfig);
 
     const students = await Promise.all(config.students.map(async student => {
