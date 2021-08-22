@@ -24,14 +24,8 @@ app.post('/login', async (req, res) => {
   const username = req.body.username.toLowerCase();
   const password = req.body.password;
 
-  const groups = await login(username, password);
-
-  if (groups) {
-    const token = {
-      username,
-      isWeightedVote: groups.toString().toLowerCase().indexOf('staff') >= 0
-    };
-    const loginToken = cookieEncrypter.encryptCookie(JSON.stringify(token), { key: process.env.LOGIN_SECRET });
+  if (await login(username, password)) {
+    const loginToken = cookieEncrypter.encryptCookie(username, { key: process.env.LOGIN_SECRET });
     res.status(200).send({ success: 1, candidates: students, loginToken });
   } else {
     res.status(400).send({ error: 'Invalid username/password' });
@@ -43,16 +37,16 @@ app.post('/submitVotes', async (req, res) => {
     return res.status(400).send({ error: 'Missing parameters' });
   }
 
-  let token;
+  let username;
 
   try {
-    token = JSON.parse(cookieEncrypter.decryptCookie(req.body.loginToken, { key: process.env.LOGIN_SECRET }));
+    username = cookieEncrypter.decryptCookie(req.body.loginToken, { key: process.env.LOGIN_SECRET });
   } catch (e) {
     return res.status(400).send({ error: 'Invalid login token - refresh the page and try again' });
   }
 
-  if (!token.username) {
-    return res.status(400).send({ error: 'Missing username' });
+  if (!username) {
+    return res.status(400).send({ error: 'Invalid username token' });
   }
 
   for (let i = 0; i < 10; i++) {
@@ -65,9 +59,8 @@ app.post('/submitVotes', async (req, res) => {
     fsPromises.mkdir(path.join(__dirname, 'votes'))
   );
 
-  await fsPromises.writeFile(path.join(__dirname, 'votes', `${token.username}.json`), JSON.stringify({
-    username: token.username,
-    isWeightedVote: token.isWeightedVote,
+  await fsPromises.writeFile(path.join(__dirname, 'votes', `${username}.json`), JSON.stringify({
+    username,
     votes: req.body.votes
   }), 'utf8');
 
