@@ -41,7 +41,7 @@ function showCandidates(candidates) {
   loginForm.remove();
 
   const voteInfo = document.createElement('h1');
-  voteInfo.innerHTML = 'Vote 1 to 10, (1 is the best, 10 is the worst)';
+  voteInfo.innerHTML = 'Vote 1 to 10, (1 is the highest, 10 is the lowest)';
 
   const voteSubInfo = document.createElement('p');
   voteSubInfo.innerHTML = 'You only give 10 people a vote';
