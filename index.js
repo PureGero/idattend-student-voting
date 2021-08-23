@@ -3,11 +3,22 @@ const config = require('./config.js');
 const crypto = require('crypto');
 const os = require('os');
 
+// Constants
 const PORT = 80;
 const NODES = os.cpus().length;
 
 if (cluster.isMaster) {
+  // Master loads the students then begins the slaves
   (async () => {
+    // Parse arguments
+    const argv = require('minimist')(process.argv.slice(2));
+    if (argv.csv) {
+      return await require('./votes_to_csv.js')();
+    } else if (Object.keys(argv).length != 1) {
+      console.log('usage: node . [--csv]');
+      process.exit(1);
+    }
+    
     try {
       const students = await require('./students.js')();
       process.env.students = JSON.stringify(students);
@@ -37,5 +48,6 @@ if (cluster.isMaster) {
     }
   })();
 } else {
+  // Slaves run the http server
   require('./server.js')(PORT);
 }
