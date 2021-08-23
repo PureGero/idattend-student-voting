@@ -10,6 +10,7 @@ const path = require('path');
 
 const app = express();
 let students;
+let loginSecret;
 
 app.use(express.static(path.join(__dirname, 'html')));
 app.use('/photos', express.static(path.join(__dirname, 'photos')));
@@ -25,7 +26,7 @@ app.post('/login', async (req, res) => {
   const password = req.body.password;
 
   if (await login(username, password)) {
-    const loginToken = cookieEncrypter.encryptCookie(username, { key: process.env.LOGIN_SECRET });
+    const loginToken = cookieEncrypter.encryptCookie(username, { key: loginSecret });
     res.status(200).send({ success: 1, candidates: students, loginToken });
   } else {
     res.status(400).send({ error: 'Invalid username/password' });
@@ -40,7 +41,7 @@ app.post('/submitVotes', async (req, res) => {
   let username;
 
   try {
-    username = cookieEncrypter.decryptCookie(req.body.loginToken, { key: process.env.LOGIN_SECRET });
+    username = cookieEncrypter.decryptCookie(req.body.loginToken, { key: loginSecret });
   } catch (e) {
     return res.status(400).send({ error: 'Invalid login token - refresh the page and try again' });
   }
@@ -67,8 +68,9 @@ app.post('/submitVotes', async (req, res) => {
   res.status(200).send({ success: 1 });
 });
 
-module.exports = port => {
-  students = JSON.parse(process.env.students);
+module.exports = (port, secret, studentList) => new Promise((resolve, reject) => {
+  loginSecret = secret;
+  students = studentList;
 
-  app.listen(port);
-};
+  const httpServer = app.listen(port, () => resolve(httpServer));
+});

@@ -49,5 +49,5 @@ if (cluster.isMaster) {
   })();
 } else {
   // Slaves run the http server
-  require('./server.js')(PORT);
+  require('./server.js')(PORT, process.env.LOGIN_SECRET, JSON.parse(process.env.students));
 }

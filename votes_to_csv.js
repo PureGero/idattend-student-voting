@@ -9,6 +9,14 @@ const path = require('path');
 const sql = require('mssql');
 
 module.exports = async () => {
+  const csv = await votesToCsv();
+  
+  await fsPromises.writeFile(path.join(__dirname, 'votes.csv'), csv, 'utf8');
+
+  console.log('The vote results csv has been written to: votes.csv');
+};
+
+const votesToCsv = module.exports.votesToCsv = async () => {
   const pool = await database();
 
   const files = await fsPromises.readdir(path.join(__dirname, 'votes'));
@@ -26,14 +34,13 @@ module.exports = async () => {
         .input('param', sql.VarChar(200), json.username)
         .query(config.teacherQuery(config.tableTeachers));
       if (result.recordset.length) {
-        console.log(json.username, 'is a teacher!');
         weighting = config.teacherVoteWeighting;
       }
 
       for (let i = 0; i < json.votes.length; i ++) {
         const student = json.votes[i];
         if (!votes[student]) votes[student] = 0;
-        votes[student] += (json.votes.length - i) * weighting;
+        votes[student] += (i + 1) * weighting;
       }
     } catch (e) {
       console.error('Error while reading', file);
@@ -45,8 +52,6 @@ module.exports = async () => {
                     .sort((a, b) => b[1] - a[1])
                     .map(a => a.join(','))
                     .join('\n');
-  
-  await fsPromises.writeFile(path.join(__dirname, 'votes.csv'), csv, 'utf8');
 
-  console.log('The vote results csv has been written to: votes.csv');
-};
+  return csv;
+}

@@ -1,3 +1,7 @@
+/*
+ * Tests the login functionality.
+ */
+
 const proxyquire = require('proxyquire').noCallThru();
 const assert = require('assert');
 const mockedLdapjs = require('./mocked/ldapjs');
