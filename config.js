@@ -39,7 +39,7 @@ module.exports = {
   server: 'GEORGE\\SQLEXPRESS',
 
   // Login domain for both the database server and for students to login
-  domain: 'GEORGE',
+  domain: 'GBN',
 
   // Url to download student photos from.
   // ${id} is replaced with the student id
