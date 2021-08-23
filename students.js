@@ -16,15 +16,15 @@ async function mapStudents(students) {
     id: student.ID
   }));
 
-  // Create students' images folder
-  if (!fs.existsSync(path.join(__dirname, 'images'))) {
-    fs.mkdirSync(path.join(__dirname, 'images'), { recursive: true });
+  // Create students' photos folder
+  if (!fs.existsSync(path.join(__dirname, 'photos'))) {
+    fs.mkdirSync(path.join(__dirname, 'photos'), { recursive: true });
   }
 
-  // Download the students' images
+  // Download the students' photos
   console.log(`Downloading student photos from ${config.photoUrl('{STUDENT_ID}')}`);
   await Promise.all(students.map(student => fetch(config.photoUrl(student.id)).then(res => {
-    const dest = fs.createWriteStream(path.join(__dirname, `images/${student.id}.jpg`));
+    const dest = fs.createWriteStream(path.join(__dirname, `photos/${student.id}.jpg`));
     res.body.pipe(dest);
   }).catch(console.error)));
 

@@ -3,13 +3,13 @@ Vote for next year's school captains on this web-app. With IDAttend integration,
 
 ## Photos
 Screenshot of login page
-![Screenshot of login page](docs/img/login.jpg)
+![Screenshot of login page](docs/images/login.jpg)
 
 Screenshot of voting page
-![Screenshot of voting page](docs/img/vote.jpg)
+![Screenshot of voting page](docs/images/vote.jpg)
 
 Screenshot of submission page
-![Screenshot of submission page](docs/img/submitted.jpg)
+![Screenshot of submission page](docs/images/submitted.jpg)
 
 ## Instructions
 

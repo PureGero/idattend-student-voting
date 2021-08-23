@@ -12,7 +12,7 @@ const app = express();
 let students;
 
 app.use(express.static(path.join(__dirname, 'html')));
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/photos', express.static(path.join(__dirname, 'photos')));
 
 app.use(express.json());
 

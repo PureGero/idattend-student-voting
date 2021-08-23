@@ -86,7 +86,7 @@ function createCandidate(name, id) {
 
   div.className = 'candidate';
   div.innerHTML = `
-    <img src="images/${id}.jpg"/>
+    <img src="photos/${id}.jpg"/>
     <label for="${name},${id}">${name}</label>
     <input type="number" id="${name},${id}" name="${name},${id}" placeholder="1"/>
     <span class="value_error"></span>
