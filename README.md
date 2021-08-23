@@ -34,6 +34,8 @@ Screenshot of submission page
 ### Running
 1. Shift-right-click the folder and click *Open Command Prompt window here* or *Open Powershell window here*.
 
+1. Type in `npm install` to install the required dependencies.
+
 1. Type in `node .` to start the voting website.
 
 1. Enter your username and password as prompted.
