@@ -1,5 +1,5 @@
 # idattend-student-voting
-Student leader voting website with IDAttend integration
+Vote for next year's school captains on this web-app. With IDAttend integration, you can easily important candidate details and photos straight from your school's database.
 
 ## Photos
 Screenshot of login page
