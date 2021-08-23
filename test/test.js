@@ -30,7 +30,7 @@ describe('server.js', () => {
   let httpServer;
 
   before(async () => {
-    if (fs.statSync(path.join(__dirname, '../votes')).isDirectory()) {
+    if (fs.existsSync(path.join(__dirname, '../votes'))) {
       fs.rmdirSync(path.join(__dirname, '../votes'), { recursive: true });
     }
 
