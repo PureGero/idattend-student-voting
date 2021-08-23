@@ -30,7 +30,9 @@ describe('server.js', () => {
   let httpServer;
 
   before(async () => {
-    fs.rmdirSync(path.join(__dirname, '../votes'), { recursive: true });
+    if (fs.statSync(path.join(__dirname, '../votes')).isDirectory()) {
+      fs.rmdirSync(path.join(__dirname, '../votes'), { recursive: true });
+    }
 
     httpServer = await server(PORT, new Array(32).fill('a').join(''), students);
   });
