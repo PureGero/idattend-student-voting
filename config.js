@@ -1,5 +1,12 @@
 module.exports = {
 
+  // # -------- #
+  // | Settings |
+  // # -------- #
+
+  // Weighting to be applied to teacher votes
+  teacherVoteWeighting: 2,
+
   // # ------------------ #
   // | Candidate students |
   // # ------------------ #
@@ -36,14 +43,14 @@ module.exports = {
   database: `IDAttend${new Date().getFullYear()}`,
 
   // A double \\ is a single \ when connecting to the server
-  server: 'GEORGE\\SQLEXPRESS',
+  server: 'EQGBN9999005\\IDATTEND',
 
   // Login domain for both the database server and for students to login
   domain: 'GBN',
 
   // Url to download student photos from.
   // ${id} is replaced with the student id
-  photoUrl: id => `https://thispersondoesnotexist.com/image?id=${id}`,
+  photoUrl: id => `http://EQGBN9999005/IDAttendWebPhotos/${id}.jpg`,
 
 
 
@@ -71,6 +78,15 @@ module.exports = {
       or CONCAT(PreferredName,' ',LastName) = @param
       or CONCAT(FirstName,' ',LastName) = @param
     )
+  `,
+
+  // Table to query students from
+  tableTeachers: 'dbo.tblTeachers',
+
+  // Mssql query to get a teacher by misid
+  teacherQuery: table => `
+    select * from ${table}
+    where Email LIKE CONCAT(@param, '@%')
   `,
 
 };

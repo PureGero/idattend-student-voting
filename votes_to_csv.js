@@ -2,10 +2,15 @@
  * Dump the votes into a csv file with the results
  */
 
+const config = require('./config.js');
+const database = require('./database.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
+const sql = require('mssql');
 
 module.exports = async () => {
+  const pool = await database();
+
   const files = await fsPromises.readdir(path.join(__dirname, 'votes'));
   const votes = {};
 
@@ -14,10 +19,21 @@ module.exports = async () => {
     try {
       const data = await fsPromises.readFile(path.join(__dirname, 'votes', file), 'utf8');
       const json = JSON.parse(data);
+
+      let weighting = 1;
+
+      const result = await pool.request()
+        .input('param', sql.VarChar(200), json.username)
+        .query(config.teacherQuery(config.tableTeachers));
+      if (result.recordset.length) {
+        console.log(json.username, 'is a teacher!');
+        weighting = config.teacherVoteWeighting;
+      }
+
       for (let i = 0; i < json.votes.length; i ++) {
         const student = json.votes[i];
         if (!votes[student]) votes[student] = 0;
-        votes[student] += (json.votes.length - i);
+        votes[student] += (json.votes.length - i) * weighting;
       }
     } catch (e) {
       console.error('Error while reading', file);
