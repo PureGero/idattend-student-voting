@@ -75,6 +75,8 @@ app.post('/submitVotes', async (req, res) => {
     fsPromises.mkdir(path.join(__dirname, 'votes'))
   );
 
+  console.log(`${username} has voted`);
+
   await fsPromises.writeFile(getVoteFile(username), JSON.stringify({
     username,
     weightedVote: username in teachers,

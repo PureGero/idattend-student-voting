@@ -3,6 +3,8 @@ const config = require('./config.js');
 const crypto = require('crypto');
 const os = require('os');
 
+require('log-timestamp')(() => `[${new Date().toISOString().split('T')[1].split('.')[0]}] %s`);
+
 // Constants
 const PORT = 80;
 const NODES = os.cpus().length;
