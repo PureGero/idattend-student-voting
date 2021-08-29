@@ -51,7 +51,7 @@ module.exports = async () => {
   }));
 
   if (candidates.includes()) {
-    return reject('Could not find all candidates.\nPlease fix these candidates in config.js then try again.');
+    throw new Error('Could not find all candidates.\nPlease fix these candidates in config.js then try again.');
   }
 
   return await mapCandidates(candidates);
