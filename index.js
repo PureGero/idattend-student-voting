@@ -16,6 +16,8 @@ if (cluster.isMaster) {
     // Parse arguments
     const argv = require('minimist')(process.argv.slice(2));
     if (argv.csv) {
+      await require('./votes_to_csv_weighted_only.js')(VOTES_DIR);
+      await require('./votes_to_csv_non_weighted_only.js')(VOTES_DIR);
       return await require('./votes_to_csv.js')(VOTES_DIR);
     } else if (Object.keys(argv).length != 1) {
       console.log('usage: node . [--csv]');

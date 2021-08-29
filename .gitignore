@@ -1,6 +1,6 @@
 photos
 votes
-votes.csv
+votes*.csv
 
 # Logs
 logs
