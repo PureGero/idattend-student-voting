@@ -27,6 +27,8 @@ loginForm.onsubmit = e => {
       loginToken = data.loginToken;
       voteCount = data.voteCount;
       showCandidates(data.candidates.shuffle());
+    } else if (data.message) {
+      showMessage(data.message);
     } else {
       throw data.error || data;
     }
@@ -74,11 +76,15 @@ function showCandidates(candidates) {
   });
 }
 
-function showVoteSuccess() {
-  document.querySelector('.candidates').remove();
+function showMessage(message) {
+  loginForm.remove();
+  
+  if (document.querySelector('.candidates')) {
+    document.querySelector('.candidates').remove();
+  }
 
   const success = document.createElement('h1');
-  success.innerHTML = 'Vote submitted';
+  success.innerHTML = message;
 
   document.body.appendChild(success);
 }
@@ -147,7 +153,7 @@ function submitVoteForm(e) {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
-      showVoteSuccess();
+      showMessage('Vote submitted');
     } else {
       throw data.error || data;
     }

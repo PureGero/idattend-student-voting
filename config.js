@@ -14,6 +14,12 @@ module.exports = {
   // Points are calculated with: basePoints + (voteCount - vote) + 1
   basePoints: 0,
 
+  // Prevent voters from voting again.
+  // Note that if a voter votes again, it will just overwrite their old vote,
+  // and not create a new vote.
+  preventReVoting: true,
+
+
 
   // # ------------------ #
   // | Candidate students |

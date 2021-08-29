@@ -5,9 +5,13 @@
 const config = require('./config.js');
 const cookieEncrypter = require('cookie-encrypter');
 const express = require('express');
-const fsPromises = require('fs').promises;
+const fs = require('fs');
+const fsPromises = fs.promises;
 const login = require('./login.js');
 const path = require('path');
+
+const isFile = file => fsPromises.access(file, fs.constants.F_OK).then(() => true).catch(() => false);
+const getVoteFile = username => path.join(__dirname, 'votes', `${username}.json`);
 
 const app = express();
 let candidates;
@@ -28,6 +32,10 @@ app.post('/login', async (req, res) => {
   const password = req.body.password;
 
   if (await login(username, password)) {
+    if (config.preventReVoting && await isFile(getVoteFile(username))) {
+      return res.status(400).send({ message: 'You have already voted' });
+    }
+
     const loginToken = cookieEncrypter.encryptCookie(username, { key: loginSecret });
     res.status(200).send({
       success: 1,
@@ -67,7 +75,7 @@ app.post('/submitVotes', async (req, res) => {
     fsPromises.mkdir(path.join(__dirname, 'votes'))
   );
 
-  await fsPromises.writeFile(path.join(__dirname, 'votes', `${username}.json`), JSON.stringify({
+  await fsPromises.writeFile(getVoteFile(username), JSON.stringify({
     username,
     weightedVote: username in teachers,
     votes: req.body.votes
