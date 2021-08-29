@@ -13,7 +13,7 @@ module.exports = (username, password) => new Promise((resolve, reject) => {
     connectTimeout: 10000
   });
 
-  client.bind(username, password, error => {
+  client.bind(`${config.domain}\\${username}`, password, error => {
     resolve(!error);
   });
   
