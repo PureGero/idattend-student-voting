@@ -25,6 +25,11 @@ if (cluster.isMaster) {
       const teachers = await require('./teachers.js')();
       const candidates = await require('./candidates.js')();
 
+      let students = null;
+      if (config.restrictToYearLevel) {
+        students = await require('./students.js')(config.restrictToYearLevel);
+      }
+
       if (!process.env.LOGIN_SECRET) {
         process.env.LOGIN_SECRET = crypto.randomBytes(16).toString('hex');
       }
@@ -34,7 +39,7 @@ if (cluster.isMaster) {
         require('./server.js')(PORT);
       } else {
         cluster.on('fork', worker => {
-          worker.send({ teachers, candidates });
+          worker.send({ teachers, candidates, students });
         });
 
         cluster.on('exit', (worker, code, signal) => {
@@ -57,7 +62,7 @@ if (cluster.isMaster) {
   // Slaves run the http server
   process.on('message', message => {
     if (message.candidates) {
-      require('./server.js')(PORT, process.env.LOGIN_SECRET, message.candidates, message.teachers);
+      require('./server.js')(PORT, process.env.LOGIN_SECRET, message.candidates, message.teachers, message.students);
     }
   });
 }

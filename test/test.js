@@ -34,7 +34,7 @@ describe('server.js', () => {
       fs.rmdirSync(path.join(__dirname, '../votes'), { recursive: true });
     }
 
-    httpServer = await server(PORT, new Array(32).fill('a').join(''), candidates, {});
+    httpServer = await server(PORT, new Array(32).fill('a').join(''), candidates, {}, null);
   });
 
   it('should be able to login', async () => {

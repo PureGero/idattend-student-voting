@@ -16,6 +16,7 @@ const getVoteFile = username => path.join(__dirname, 'votes', `${username}.json`
 const app = express();
 let candidates;
 let teachers;
+let students;
 let loginSecret;
 
 app.use(express.static(path.join(__dirname, 'html')));
@@ -34,6 +35,10 @@ app.post('/login', async (req, res) => {
   if (await login(username, password)) {
     if (config.preventReVoting && await isFile(getVoteFile(username))) {
       return res.status(400).send({ message: 'You have already voted' });
+    }
+
+    if (students && !(username in students || username in teachers)) {
+      return res.status(400).send({ message: 'You do not have access to vote' });
     }
 
     const loginToken = cookieEncrypter.encryptCookie(username, { key: loginSecret });
@@ -86,10 +91,11 @@ app.post('/submitVotes', async (req, res) => {
   res.status(200).send({ success: 1 });
 });
 
-module.exports = (port, secret, candidateList, teacherList) => new Promise((resolve, reject) => {
+module.exports = (port, secret, candidateList, teacherMap, studentMap) => new Promise((resolve, reject) => {
   loginSecret = secret;
   candidates = candidateList;
-  teachers = teacherList;
+  teachers = teacherMap;
+  students = studentMap;
 
   const httpServer = app.listen(port, () => resolve(httpServer));
 });

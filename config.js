@@ -5,6 +5,7 @@ module.exports = {
   // # -------- #
 
   // Weighting to be applied to teacher votes
+  // Set to 0 to disable teacher votes
   teacherVoteWeighting: 2,
 
   // Number of votes for a voter to give out to candidates
@@ -18,6 +19,10 @@ module.exports = {
   // Note that if a voter votes again, it will just overwrite their old vote,
   // and not create a new vote.
   preventReVoting: true,
+
+  // Restrict the voters to students of the specified year level.
+  // Set to 0 to allow anyone to vote
+  restrictToYearLevel: 0,
 
 
 
@@ -94,12 +99,18 @@ module.exports = {
     )
   `,
 
+  // Mssql query to get all students' misids by year level
+  studentsQuery: table => `
+    select lower(MISID) as MISID from ${table}
+    where Year = @param
+  `,
+
   // Table to query students from
   tableTeachers: 'dbo.tblTeachers',
 
   // Mssql query to get all teachers' misids
   teachersQuery: table => `
-    select left(Email, charindex('@', Email) - 1) as MISID from ${table}
+    select lower(left(Email, charindex('@', Email) - 1)) as MISID from ${table}
     where charindex('@', Email) > 0
   `,
 
