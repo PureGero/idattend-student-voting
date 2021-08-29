@@ -7,6 +7,8 @@ const optimist = require('optimist');
 const prompt = require('prompt');
 const sql = require('mssql');
 
+let pool;
+
 prompt.override = optimist.argv;
 
 const properties = [
@@ -22,6 +24,10 @@ const properties = [
 prompt.start();
 
 module.exports = () => new Promise((resolve, reject) => {
+  if (pool) {
+    return resolve(pool);
+  }
+
   prompt.get(properties, async (err, prompts) => {
     if (err) reject(err);
 
@@ -39,7 +45,7 @@ module.exports = () => new Promise((resolve, reject) => {
 
     try {
       console.log(`Connecting to database ${sqlConfig.database} on ${sqlConfig.server} with username ${sqlConfig.user}`);
-      resolve(await sql.connect(sqlConfig));
+      resolve(pool = await sql.connect(sqlConfig));
     } catch (e) {
       reject(e);
     }

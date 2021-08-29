@@ -19,7 +19,7 @@ const votesToCsv = proxyquire('../votes_to_csv.js', {
   './database.js': () => mockedMssql.connect()
 });
 
-const students = new Array(20).fill().map((value, index) => ({
+const candidates = new Array(20).fill().map((value, index) => ({
   name: `F${index} L${index}`,
   id: `${index}`
 }));
@@ -34,7 +34,7 @@ describe('server.js', () => {
       fs.rmdirSync(path.join(__dirname, '../votes'), { recursive: true });
     }
 
-    httpServer = await server(PORT, new Array(32).fill('a').join(''), students);
+    httpServer = await server(PORT, new Array(32).fill('a').join(''), candidates, {});
   });
 
   it('should be able to login', async () => {
@@ -55,7 +55,7 @@ describe('server.js', () => {
     });
   });
 
-  it('should be able to vote for students', async () => {
+  it('should be able to vote for candidates', async () => {
     return await fetch(`http://localhost:${PORT}/submitVotes`, {
       method: 'POST',
       headers: {

@@ -1,5 +1,5 @@
 /*
- * Resolve students from an mssql database
+ * Resolve candidate students from an mssql database
  */
 
 const config = require('./config.js');
@@ -9,32 +9,32 @@ const fs = require('fs');
 const path = require('path');
 const sql = require('mssql');
 
-async function mapStudents(students) {
-  // Reduce students to only what's needed
-  students = students.map(student => ({
+async function mapCandidates(candidates) {
+  // Reduce candidates to only what's needed
+  candidates = candidates.map(student => ({
     name: `${student.PreferredName || student.FirstName} ${student.PreferredLastName || student.LastName}`,
     id: student.ID
   }));
 
-  // Create students' photos folder
+  // Create candidates' photos folder
   if (!fs.existsSync(path.join(__dirname, 'photos'))) {
     fs.mkdirSync(path.join(__dirname, 'photos'), { recursive: true });
   }
 
-  // Download the students' photos
-  console.log(`Downloading student photos from ${config.photoUrl('{STUDENT_ID}')}`);
-  await Promise.all(students.map(student => fetch(config.photoUrl(student.id)).then(res => {
+  // Download the candidates' photos
+  console.log(`Downloading candidate photos from ${config.photoUrl('{STUDENT_ID}')}`);
+  await Promise.all(candidates.map(student => fetch(config.photoUrl(student.id)).then(res => {
     const dest = fs.createWriteStream(path.join(__dirname, `photos/${student.id}.jpg`));
     res.body.pipe(dest);
   }).catch(console.error)));
 
-  return students;
+  return candidates;
 }
 
 module.exports = async () => {
   const pool = await database();
 
-  const students = await Promise.all(config.students.map(async student => {
+  const candidates = await Promise.all(config.candidates.map(async student => {
     const result = await pool.request()
       .input('param', sql.VarChar(200), student)
       .query(config.studentQuery(config.table));
@@ -43,16 +43,16 @@ module.exports = async () => {
       return;
     }
     if (result.recordset.length > 1) {
-      console.log(`Multiple students matching ${student}:`);
+      console.log(`Multiple candidates matching ${student}:`);
       result.recordset.forEach(record => console.log(`  ${record.ID} ${record.PreferredName} ${record.PreferredLastName} (${record.MISID})`));
       return;
     }
     return result.recordset[0];
   }));
 
-  if (students.includes()) {
-    return reject('Could not find all students.\nPlease fix these students in config.js then try again.');
+  if (candidates.includes()) {
+    return reject('Could not find all candidates.\nPlease fix these candidates in config.js then try again.');
   }
 
-  return await mapStudents(students);
+  return await mapCandidates(candidates);
 };

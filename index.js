@@ -8,7 +8,7 @@ const PORT = 80;
 const NODES = os.cpus().length;
 
 if (cluster.isMaster) {
-  // Master loads the students then begins the slaves
+  // Master loads the database data then begins the slaves
   (async () => {
     // Parse arguments
     const argv = require('minimist')(process.argv.slice(2));
@@ -20,8 +20,8 @@ if (cluster.isMaster) {
     }
     
     try {
-      const students = await require('./students.js')();
-      process.env.students = JSON.stringify(students);
+      const teachers = await require('./teachers.js')();
+      const candidates = await require('./candidates.js')();
 
       if (!process.env.LOGIN_SECRET) {
         process.env.LOGIN_SECRET = crypto.randomBytes(16).toString('hex');
@@ -31,16 +31,20 @@ if (cluster.isMaster) {
         console.log('Starting web server in single process mode');
         require('./server.js')(PORT);
       } else {
-        console.log(`Starting ${NODES} workers`);
-        [...new Array(NODES)].forEach(() => cluster.fork());
+        cluster.on('fork', worker => {
+          worker.send({ teachers, candidates });
+        });
 
         cluster.on('exit', (worker, code, signal) => {
           console.log(`worker ${worker.process.pid} died, restarting it`);
           cluster.fork();
         });
+
+        console.log(`Starting ${NODES} workers`);
+        [...new Array(NODES)].forEach(() => cluster.fork());
       }
 
-      console.log(`Students can access the webpage at http://${os.hostname}${PORT == 80 ? '' : `:${PORT}`}/`);
+      console.log(`Voters can access the webpage at http://${os.hostname}${PORT == 80 ? '' : `:${PORT}`}/`);
     } catch (e) {
       console.error();
       console.error(`Error: ${e}`);
@@ -49,5 +53,9 @@ if (cluster.isMaster) {
   })();
 } else {
   // Slaves run the http server
-  require('./server.js')(PORT, process.env.LOGIN_SECRET, JSON.parse(process.env.students));
+  process.on('message', message => {
+    if (message.candidates) {
+      require('./server.js')(PORT, process.env.LOGIN_SECRET, message.candidates, message.teachers);
+    }
+  });
 }

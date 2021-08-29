@@ -20,7 +20,7 @@ module.exports = {
   // # ------------------ #
 
   // Can be Student ID, MISID, or Name (First and/or Last)
-  students: [
+  candidates: [
     'Chaseling',
     'George',
     'Anastasi',
@@ -91,10 +91,10 @@ module.exports = {
   // Table to query students from
   tableTeachers: 'dbo.tblTeachers',
 
-  // Mssql query to get a teacher by misid
-  teacherQuery: table => `
-    select * from ${table}
-    where Email LIKE CONCAT(@param, '@%')
+  // Mssql query to get all teachers' misids
+  teachersQuery: table => `
+    select left(Email, charindex('@', Email) - 1) as MISID from ${table}
+    where charindex('@', Email) > 0
   `,
 
 };

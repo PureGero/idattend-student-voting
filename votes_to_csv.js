@@ -3,10 +3,8 @@
  */
 
 const config = require('./config.js');
-const database = require('./database.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const sql = require('mssql');
 
 module.exports = async () => {
   const csv = await votesToCsv();
@@ -17,8 +15,6 @@ module.exports = async () => {
 };
 
 const votesToCsv = module.exports.votesToCsv = async () => {
-  const pool = await database();
-
   const files = await fsPromises.readdir(path.join(__dirname, 'votes'));
   const votes = {};
 
@@ -28,14 +24,7 @@ const votesToCsv = module.exports.votesToCsv = async () => {
       const data = await fsPromises.readFile(path.join(__dirname, 'votes', file), 'utf8');
       const json = JSON.parse(data);
 
-      let weighting = 1;
-
-      const result = await pool.request()
-        .input('param', sql.VarChar(200), json.username)
-        .query(config.teacherQuery(config.tableTeachers));
-      if (result.recordset.length) {
-        weighting = config.teacherVoteWeighting;
-      }
+      let weighting = json.weightedVote ? config.teacherVoteWeighting : 1;
 
       for (let i = 0; i < json.votes.length; i ++) {
         const student = json.votes[i];

@@ -10,7 +10,8 @@ const login = require('./login.js');
 const path = require('path');
 
 const app = express();
-let students;
+let candidates;
+let teachers;
 let loginSecret;
 
 app.use(express.static(path.join(__dirname, 'html')));
@@ -30,7 +31,7 @@ app.post('/login', async (req, res) => {
     const loginToken = cookieEncrypter.encryptCookie(username, { key: loginSecret });
     res.status(200).send({
       success: 1,
-      candidates: students,
+      candidates,
       loginToken,
       voteCount: config.voteCount
     });
@@ -68,15 +69,17 @@ app.post('/submitVotes', async (req, res) => {
 
   await fsPromises.writeFile(path.join(__dirname, 'votes', `${username}.json`), JSON.stringify({
     username,
+    weightedVote: username in teachers,
     votes: req.body.votes
   }), 'utf8');
 
   res.status(200).send({ success: 1 });
 });
 
-module.exports = (port, secret, studentList) => new Promise((resolve, reject) => {
+module.exports = (port, secret, candidateList, teacherList) => new Promise((resolve, reject) => {
   loginSecret = secret;
-  students = studentList;
+  candidates = candidateList;
+  teachers = teacherList;
 
   const httpServer = app.listen(port, () => resolve(httpServer));
 });
