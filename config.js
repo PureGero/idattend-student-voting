@@ -10,6 +10,9 @@ module.exports = {
   // Number of votes for a voter to give out to candidates
   voteCount: 10,
 
+  // Base number of points to give a vote.
+  // Points are calculated with: basePoints + (voteCount - vote) + 1
+  basePoints: 0,
 
 
   // # ------------------ #

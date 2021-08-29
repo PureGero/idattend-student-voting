@@ -40,7 +40,7 @@ const votesToCsv = module.exports.votesToCsv = async () => {
       for (let i = 0; i < json.votes.length; i ++) {
         const student = json.votes[i];
         if (!votes[student]) votes[student] = 0;
-        votes[student] += (i + 1) * weighting;
+        votes[student] += (config.basePoints + i + 1) * weighting;
       }
     } catch (e) {
       console.error('Error while reading', file);
