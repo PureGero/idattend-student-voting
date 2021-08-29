@@ -24,6 +24,9 @@ module.exports = {
   // Set to 0 to allow anyone to vote
   restrictToYearLevel: 0,
 
+  // Port to run the website on
+  port: 80,
+
 
 
   // # ------------------ #

@@ -6,7 +6,6 @@ const os = require('os');
 require('log-timestamp')(() => `[${new Date().toISOString().split('T')[1].split('.')[0]}] %s`);
 
 // Constants
-const PORT = 80;
 const NODES = os.cpus().length;
 
 if (cluster.isMaster) {
@@ -36,7 +35,7 @@ if (cluster.isMaster) {
 
       if (NODES == 1) {
         console.log('Starting web server in single process mode');
-        require('./server.js')(PORT);
+        require('./server.js')(config.port, process.env.LOGIN_SECRET, candidates, teachers, students);
       } else {
         cluster.on('fork', worker => {
           worker.send({ teachers, candidates, students });
@@ -51,7 +50,7 @@ if (cluster.isMaster) {
         [...new Array(NODES)].forEach(() => cluster.fork());
       }
 
-      console.log(`Voters can access the webpage at http://${os.hostname}${PORT == 80 ? '' : `:${PORT}`}/`);
+      console.log(`Voters can access the webpage at http://${os.hostname}${config.port == 80 ? '' : `:${config.port}`}/`);
     } catch (e) {
       console.error();
       console.error(`Error: ${e}`);
@@ -62,7 +61,7 @@ if (cluster.isMaster) {
   // Slaves run the http server
   process.on('message', message => {
     if (message.candidates) {
-      require('./server.js')(PORT, process.env.LOGIN_SECRET, message.candidates, message.teachers, message.students);
+      require('./server.js')(config.port, process.env.LOGIN_SECRET, message.candidates, message.teachers, message.students);
     }
   });
 }
