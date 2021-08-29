@@ -3,6 +3,7 @@ document.querySelector('.error').innerHTML = '';
 const loginForm = document.querySelector('.login');
 
 let loginToken;
+let voteCount;
 
 loginForm.onsubmit = e => {
   e.preventDefault();
@@ -24,6 +25,7 @@ loginForm.onsubmit = e => {
   .then(data => {
     if (data.candidates) {
       loginToken = data.loginToken;
+      voteCount = data.voteCount;
       showCandidates(data.candidates.shuffle());
     } else {
       throw data.error || data;
@@ -41,10 +43,10 @@ function showCandidates(candidates) {
   loginForm.remove();
 
   const voteInfo = document.createElement('h1');
-  voteInfo.innerHTML = 'Vote 1 to 10, (1 is the highest, 10 is the lowest)';
+  voteInfo.innerHTML = `Vote 1 to ${voteCount}, (1 is the highest, ${voteCount} is the lowest)`;
 
   const voteSubInfo = document.createElement('p');
-  voteSubInfo.innerHTML = 'You only give 10 people a vote';
+  voteSubInfo.innerHTML = `You only give ${voteCount} people a vote`;
 
   const voteError = document.createElement('p');
   voteError.className = 'error';
@@ -102,8 +104,8 @@ function voteValueChange() {
     let error = '';
     if (input.value) {
       const value = parseInt(input.value);
-      if (isNaN(value) || value < 1 || value > 10) {
-        error = 'Vote must be between<br/>1 and 10';
+      if (isNaN(value) || value < 1 || value > voteCount) {
+        error = `Vote must be between<br/>1 and ${voteCount}`;
       } else if (value in map) {
         error = 'Duplicate vote';
       }
@@ -131,12 +133,12 @@ function submitVoteForm(e) {
 
   document.querySelectorAll('.candidate input').forEach(input => {
     if (input.value) {
-      votes[10 - parseInt(input.value)] = input.id;
+      votes[voteCount - parseInt(input.value)] = input.id;
     }
   });
 
   fetch('submitVotes', {
-    method: 'POST', // or 'PUT'
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },

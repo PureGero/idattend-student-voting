@@ -7,6 +7,9 @@ module.exports = {
   // Weighting to be applied to teacher votes
   teacherVoteWeighting: 2,
 
+  // Number of votes for a voter to give out to candidates
+  voteCount: 10,
+
 
 
   // # ------------------ #

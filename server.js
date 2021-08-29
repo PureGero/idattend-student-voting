@@ -2,6 +2,7 @@
  * HTTP server to serve the voting website
  */
 
+const config = require('./config.js');
 const cookieEncrypter = require('cookie-encrypter');
 const express = require('express');
 const fsPromises = require('fs').promises;
@@ -27,7 +28,12 @@ app.post('/login', async (req, res) => {
 
   if (await login(username, password)) {
     const loginToken = cookieEncrypter.encryptCookie(username, { key: loginSecret });
-    res.status(200).send({ success: 1, candidates: students, loginToken });
+    res.status(200).send({
+      success: 1,
+      candidates: students,
+      loginToken,
+      voteCount: config.voteCount
+    });
   } else {
     res.status(400).send({ error: 'Invalid username/password' });
   }
@@ -50,9 +56,9 @@ app.post('/submitVotes', async (req, res) => {
     return res.status(400).send({ error: 'Invalid username token' });
   }
 
-  for (let i = 0; i < 10; i++) {
-    if (!req.body.votes.length || req.body.votes.length > 10 || !req.body.votes[i]) {
-      return res.status(400).send({ error: 'Vote one person for each number between 1 and 10' });
+  for (let i = 0; i < config.voteCount; i++) {
+    if (!req.body.votes.length || req.body.votes.length > config.voteCount || !req.body.votes[i]) {
+      return res.status(400).send({ error: `Vote one person for each number between 1 and ${config.voteCount}` });
     }
   }
 
