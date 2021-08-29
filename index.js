@@ -2,11 +2,13 @@ const cluster = require('cluster');
 const config = require('./config.js');
 const crypto = require('crypto');
 const os = require('os');
+const path = require('path');
 
 require('log-timestamp')(() => `[${new Date().toISOString().split('T')[1].split('.')[0]}] %s`);
 
 // Constants
 const NODES = os.cpus().length;
+const VOTES_DIR = path.join(__dirname, 'votes');
 
 if (cluster.isMaster) {
   // Master loads the database data then begins the slaves
@@ -14,7 +16,7 @@ if (cluster.isMaster) {
     // Parse arguments
     const argv = require('minimist')(process.argv.slice(2));
     if (argv.csv) {
-      return await require('./votes_to_csv.js')();
+      return await require('./votes_to_csv.js')(VOTES_DIR);
     } else if (Object.keys(argv).length != 1) {
       console.log('usage: node . [--csv]');
       process.exit(1);
@@ -35,7 +37,7 @@ if (cluster.isMaster) {
 
       if (NODES == 1) {
         console.log('Starting web server in single process mode');
-        require('./server.js')(config.port, process.env.LOGIN_SECRET, candidates, teachers, students);
+        require('./server.js')(config.port, process.env.LOGIN_SECRET, candidates, teachers, students, VOTES_DIR);
       } else {
         cluster.on('fork', worker => {
           worker.send({ teachers, candidates, students });
@@ -61,7 +63,7 @@ if (cluster.isMaster) {
   // Slaves run the http server
   process.on('message', message => {
     if (message.candidates) {
-      require('./server.js')(config.port, process.env.LOGIN_SECRET, message.candidates, message.teachers, message.students);
+      require('./server.js')(config.port, process.env.LOGIN_SECRET, message.candidates, message.teachers, message.students, VOTES_DIR);
     }
   });
 }

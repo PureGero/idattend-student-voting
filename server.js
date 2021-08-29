@@ -10,14 +10,15 @@ const fsPromises = fs.promises;
 const login = require('./login.js');
 const path = require('path');
 
-const isFile = file => fsPromises.access(file, fs.constants.F_OK).then(() => true).catch(() => false);
-const getVoteFile = username => path.join(__dirname, 'votes', `${username}.json`);
-
 const app = express();
 let candidates;
 let teachers;
 let students;
+let votesDir;
 let loginSecret;
+
+const isFile = file => fsPromises.access(file, fs.constants.F_OK).then(() => true).catch(() => false);
+const getVoteFile = username => path.join(votesDir, `${username}.json`);
 
 app.use(express.static(path.join(__dirname, 'html')));
 app.use('/photos', express.static(path.join(__dirname, 'photos')));
@@ -76,8 +77,8 @@ app.post('/submitVotes', async (req, res) => {
     }
   }
 
-  await fsPromises.access(path.join(__dirname, 'votes')).catch(error =>
-    fsPromises.mkdir(path.join(__dirname, 'votes'))
+  await fsPromises.access(votesDir).catch(error =>
+    fsPromises.mkdir(votesDir)
   );
 
   console.log(`${username} has voted`);
@@ -91,11 +92,12 @@ app.post('/submitVotes', async (req, res) => {
   res.status(200).send({ success: 1 });
 });
 
-module.exports = (port, secret, candidateList, teacherMap, studentMap) => new Promise((resolve, reject) => {
+module.exports = (port, secret, candidateList, teacherMap, studentMap, votesFolder) => new Promise((resolve, reject) => {
   loginSecret = secret;
   candidates = candidateList;
   teachers = teacherMap;
   students = studentMap;
+  votesDir = votesFolder;
 
   const httpServer = app.listen(port, () => resolve(httpServer));
 });

@@ -6,22 +6,22 @@ const config = require('./config.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
 
-module.exports = async () => {
-  const csv = await votesToCsv();
+module.exports = async (votesDir) => {
+  const csv = await votesToCsv(votesDir);
   
   await fsPromises.writeFile(path.join(__dirname, 'votes.csv'), csv, 'utf8');
 
   console.log('The vote results csv has been written to: votes.csv');
 };
 
-const votesToCsv = module.exports.votesToCsv = async () => {
-  const files = await fsPromises.readdir(path.join(__dirname, 'votes'));
+const votesToCsv = module.exports.votesToCsv = async (votesDir) => {
+  const files = await fsPromises.readdir(votesDir);
   const votes = {};
 
   await Promise.all(files.map(async file => {
     if (!file.endsWith('.json')) return;
     try {
-      const data = await fsPromises.readFile(path.join(__dirname, 'votes', file), 'utf8');
+      const data = await fsPromises.readFile(path.join(votesDir, file), 'utf8');
       const json = JSON.parse(data);
 
       let weighting = json.weightedVote ? config.teacherVoteWeighting : 1;
